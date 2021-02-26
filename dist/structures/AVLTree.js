@@ -1,0 +1,169 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const Nodo_1 = require("./Nodo");
+const Tree_1 = require("./Tree");
+class AVLTree extends Tree_1.default {
+    //Override regular Tree insert
+    insertRecursive(nodo, num) {
+        if (num < nodo.num) {
+            if (nodo.leftNodo != null)
+                this.insertRecursive(nodo.leftNodo, num);
+            else {
+                nodo.leftNodo = new Nodo_1.default(num);
+                //Difference from Tree
+                nodo.leftNodo.setFather(nodo);
+                this.balance(nodo, 'LEFT', true);
+            }
+        }
+        else if (num > nodo.num) {
+            if (nodo.rightNodo != null)
+                this.insertRecursive(nodo.rightNodo, num);
+            else {
+                nodo.rightNodo = new Nodo_1.default(num);
+                //Difference from Tree
+                nodo.rightNodo.setFather(nodo);
+                this.balance(nodo, 'RIGHT', true);
+            }
+        }
+        else if (num == nodo.num)
+            console.log(`Can't add an existing number.`);
+    }
+    balance(nodo, leafSide, newNodo) {
+        if (newNodo)
+            leafSide == 'LEFT' ? nodo.decreaseBF() : nodo.increaseBF();
+        else
+            leafSide == 'LEFT' ? nodo.increaseBF() : nodo.increaseBF();
+        //It's balanced, don't do anything else
+        if (nodo.getBF() == 0)
+            return;
+        else if (nodo.getBF() === -2) {
+            if (nodo.leftNodo.getBF() == 1)
+                this.doubleRightRotation(nodo);
+            else
+                this.simpleRightRotation(nodo);
+            return;
+        }
+        else if (nodo.getBF() == 2) {
+            if (nodo.rightNodo.getBF() == -1)
+                this.doubleLeftRotation(nodo);
+            else
+                this.simpleLeftRotation(nodo);
+            return;
+        }
+        if (nodo.getFather() != null) {
+            nodo.getFather().rightNodo == nodo ? leafSide = 'RIGHT' : leafSide = 'LEFT';
+            this.balance(nodo.getFather(), leafSide, newNodo);
+        }
+    }
+    simpleRightRotation(nodo) {
+        let father = nodo.getFather();
+        let P = nodo;
+        let Q = P.leftNodo;
+        let B = Q.rightNodo;
+        if (father != null)
+            father.rightNodo == P ? father.rightNodo = Q : father.leftNodo = Q;
+        else
+            this.root = Q;
+        P.leftNodo = B;
+        Q.rightNodo = P;
+        P.setFather(Q);
+        B != null ? B.setFather(P) : Q.setFather(father);
+        P.setBF(0);
+        Q.setBF(0);
+    }
+    simpleLeftRotation(nodo) {
+        let father = nodo.getFather();
+        let P = nodo;
+        let Q = P.rightNodo;
+        let B = Q.leftNodo;
+        if (father != null)
+            father.leftNodo == P ? father.leftNodo = Q : father.rightNodo = Q;
+        else
+            this.root = Q;
+        P.rightNodo = B;
+        Q.leftNodo = P;
+        P.setFather(Q);
+        B != null ? B.setFather(P) : Q.setFather(father);
+        P.setBF(0);
+        Q.setBF(0);
+    }
+    doubleRightRotation(nodo) {
+        let father = nodo.getFather();
+        let P = nodo;
+        let Q = P.leftNodo;
+        let R = Q.rightNodo;
+        let B = R.leftNodo;
+        let C = R.rightNodo;
+        if (father != null)
+            father.rightNodo == P ? father.rightNodo = R : father.leftNodo = R;
+        else
+            this.root = Q;
+        P.leftNodo = C;
+        Q.rightNodo = B;
+        R.leftNodo = Q;
+        R.rightNodo = P;
+        R.setFather(father);
+        P.setFather(R);
+        Q.setFather(R);
+        if (B != null)
+            B.setFather(Q);
+        if (C != null)
+            B.setFather(P);
+        switch (R.getBF()) {
+            case -1:
+                Q.setBF(0);
+                P.setBF(1);
+                break;
+            case 0:
+                Q.setBF(0);
+                P.setBF(0);
+                break;
+            case 1:
+                Q.setBF(-1);
+                P.setBF(0);
+                break;
+        }
+        R.setBF(0);
+    }
+    doubleLeftRotation(nodo) {
+        let father = nodo.getFather();
+        let P = nodo;
+        let Q = P.rightNodo;
+        let R = Q.leftNodo;
+        let B = R.leftNodo;
+        let C = R.rightNodo;
+        if (father != null)
+            father.rightNodo == P ? father.rightNodo = R : father.leftNodo = R;
+        else
+            this.root = Q;
+        //Rebuild tree
+        P.rightNodo = C;
+        Q.leftNodo = B;
+        R.leftNodo = P;
+        R.rightNodo = Q;
+        //Re-assign fathers
+        R.setFather(father);
+        P.setFather(R);
+        Q.setFather(R);
+        if (B != null)
+            B.setFather(Q);
+        if (C != null)
+            B.setFather(P);
+        switch (R.getBF()) {
+            case -1:
+                P.setBF(0);
+                Q.setBF(1);
+                break;
+            case 0:
+                Q.setBF(0);
+                P.setBF(0);
+                break;
+            case 1:
+                Q.setBF(-1);
+                P.setBF(0);
+                break;
+        }
+        R.setBF(0);
+    }
+}
+exports.default = AVLTree;
