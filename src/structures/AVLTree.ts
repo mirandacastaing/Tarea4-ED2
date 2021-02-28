@@ -63,6 +63,7 @@ export default class AVLTree extends Tree{
 
     }
 
+    
 
     private simpleRightRotation(nodo:Nodo):void{
         let father : Nodo = nodo.getFather();
