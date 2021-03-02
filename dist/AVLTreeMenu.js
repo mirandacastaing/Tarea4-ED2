@@ -9,11 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const AVLTree_1 = require("./structures/AVLTree");
-const promptly = require('promptly');
+const structures_1 = require("./structures/");
+const promptly = require("promptly");
 class AVLTreeMenu {
     constructor() {
-        this.tree = new AVLTree_1.default();
+        this.tree = new structures_1.AVLTree();
     }
     menu() {
         return __awaiter(this, void 0, void 0, function* () {

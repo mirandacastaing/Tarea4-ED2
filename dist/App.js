@@ -11,7 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 const AVLTreeMenu_1 = require("./AVLTreeMenu");
 const BTreeMenu_1 = require("./BTreeMenu");
-const promptly = require('promptly');
+const promptly = require("promptly");
 let aVLTreeMenu = new AVLTreeMenu_1.default();
 let bTreeMenu = new BTreeMenu_1.default();
 (() => __awaiter(void 0, void 0, void 0, function* () {

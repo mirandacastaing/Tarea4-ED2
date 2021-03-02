@@ -1,25 +1,25 @@
-import AVLTree from "./structures/AVLTree";
-const promptly = require('promptly');
+import { AVLTree } from "./structures/";
+import * as promptly from 'promptly';
 
-export default class AVLTreeMenu{
+export default class AVLTreeMenu {
 
-    constructor(){}
+    constructor() { }
 
-    private tree:AVLTree = new AVLTree();
+    private tree: AVLTree = new AVLTree();
 
-    public async menu():Promise<any>{
+    public async menu(): Promise<any> {
 
-        let menu:string = `
+        let menu: string = `
         \r 1. Agregar numero al arbol.
         \r 2. Mostrar 'preorden'.
         \r 3. Mostrar 'inorden'.
         \r 4. Mostrar 'postorden'.
         \r 0. Salir.`;
-        let opcion:string;
-        do{
+        let opcion: string;
+        do {
             console.log(menu);
-            opcion = await promptly.choose('Escoger opcion de menu: ',['1','2','3','4','0']);
-            switch(opcion){
+            opcion = await promptly.choose('Escoger opcion de menu: ', ['1', '2', '3', '4', '0']);
+            switch (opcion) {
                 case '1':
                     let numero = await promptly.prompt('Ingresar numero: ');
                     this.tree.insert(Number(numero));
@@ -38,7 +38,7 @@ export default class AVLTreeMenu{
                 default:
                     break;
             }
-        
-        }while(opcion!='0');
+
+        } while (opcion != '0');
     }
 }

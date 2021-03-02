@@ -9,8 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const BTree_1 = require("./structures/BTree");
-const promptly = require('promptly');
+const structures_1 = require("./structures/");
+const promptly = require("promptly");
 class BTreeMenu {
     constructor() { }
     menu() {
@@ -25,7 +25,6 @@ class BTreeMenu {
                 opcion = yield promptly.choose('Escoger opcion de menu: ', ['1', '2', '0']);
                 switch (opcion) {
                     case '1':
-                            === ;
                         yield this.insert();
                         break;
                     case '2':
@@ -48,7 +47,7 @@ class BTreeMenu {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.tree == null) {
                 let degree = yield promptly.prompt('Ingresar grado/orden de arbol: ');
-                this.tree = new BTree_1.default(degree);
+                this.tree = new structures_1.BTree(degree);
             }
             let numero = yield promptly.prompt('Ingresar numero: ');
             this.tree.insert(Number(numero));

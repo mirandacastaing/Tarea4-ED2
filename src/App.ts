@@ -1,6 +1,6 @@
 import AVLTreeMenu from './AVLTreeMenu';
 import BTreeMenu from './BTreeMenu';
-const promptly = require('promptly');
+import * as promptly from 'promptly';
 
 let aVLTreeMenu = new AVLTreeMenu();
 let bTreeMenu = new BTreeMenu();
