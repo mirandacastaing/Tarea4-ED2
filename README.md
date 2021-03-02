@@ -3,7 +3,9 @@ Aplicación para explicar y mostrar la diferencia entre los árboles B, los AVL,
 
 ## Correr aplicacion
 ```
-node .\dist\App.js
+<!-- node .\dist\App.js -->
+npm start transpila y corre los JS
+Es necesario realizar un 'npm install' antes de ejecutarlos
 ```
 
 ## Para transpilar codigo de TS a JS, correr en terminal

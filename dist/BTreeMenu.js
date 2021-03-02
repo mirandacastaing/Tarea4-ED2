@@ -25,6 +25,7 @@ class BTreeMenu {
                 opcion = yield promptly.choose('Escoger opcion de menu: ', ['1', '2', '0']);
                 switch (opcion) {
                     case '1':
+                            === ;
                         yield this.insert();
                         break;
                     case '2':
@@ -34,6 +35,7 @@ class BTreeMenu {
                         yield this.search();
                         break;
                     case '0':
+                        return;
                         break;
                     default:
                         break;

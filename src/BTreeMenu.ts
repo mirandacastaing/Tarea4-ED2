@@ -29,6 +29,7 @@ export default class BTreeMenu{
                     await this.search();
                     break;
                 case '0':
+                    return;
                     break;
                 default:
                     break;
