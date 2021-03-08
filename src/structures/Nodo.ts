@@ -1,7 +1,29 @@
 export default class Nodo {
-    public num: number = 0;
-    public rightNodo: Nodo = null;
-    public leftNodo: Nodo = null;
+    private num: number = 0;
+    private rightNodo: Nodo = null;
+    private leftNodo: Nodo = null;
+
+    public setNum(num:number):void{
+        this.num = num;
+    }
+    public getNum():number{
+        return this.num;
+    }
+
+    public setRightNodo(nodo:Nodo):void{
+        this.rightNodo = nodo;
+    }
+
+    public setLeftNodo(nodo:Nodo):void{
+        this.leftNodo = nodo;
+    }
+    
+    public getRightNodo():Nodo{
+        return this.rightNodo;
+    }
+    public getLeftNodo():Nodo{
+        return this.leftNodo;
+    }
     //Balance factor
     private bf: number = 0;
     private father:Nodo

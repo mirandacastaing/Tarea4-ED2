@@ -1,11 +1,11 @@
-import { AVLTree } from "./structures/";
 import * as promptly from 'promptly';
+import AVLgestorGestor from './AVLTreeGestor';
 
-export default class AVLTreeMenu {
+export default class AVLgestorMenu {
 
     constructor() { }
 
-    private tree: AVLTree = new AVLTree();
+    private gestor: AVLgestorGestor = new AVLgestorGestor();
 
     public async menu(): Promise<any> {
 
@@ -14,24 +14,30 @@ export default class AVLTreeMenu {
         \r 2. Mostrar 'preorden'.
         \r 3. Mostrar 'inorden'.
         \r 4. Mostrar 'postorden'.
+        \r 5. Buscar.
         \r 0. Salir.`;
         let opcion: string;
         do {
             console.log(menu);
-            opcion = await promptly.choose('Escoger opcion de menu: ', ['1', '2', '3', '4', '0']);
+            opcion = await promptly.choose('Escoger opcion de menu: ', ['1', '2', '3', '4','5', '0']);
+            let input:string;
             switch (opcion) {
                 case '1':
-                    let numero = await promptly.prompt('Ingresar numero: ');
-                    this.tree.insert(Number(numero));
+                    input = await promptly.prompt('Ingresar numero: ');
+                    this.gestor.insert(Number(input));
                     break;
                 case '2':
-                    this.tree.showPreOrder();
+                    this.gestor.showPreOrder();
                     break;
                 case '3':
-                    this.tree.showInOrder();
+                    this.gestor.showInOrder();
                     break;
                 case '4':
-                    this.tree.showPostOrder();
+                    this.gestor.showPostOrder();
+                    break;
+                case '5':
+                    input = await promptly.prompt('Ingresar numero: ');
+                    this.gestor.search(Number(input));
                     break;
                 case '0':
                     break;

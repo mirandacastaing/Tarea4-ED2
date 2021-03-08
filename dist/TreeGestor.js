@@ -9,51 +9,59 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const structures_1 = require("./structures/");
 const promptly = require("promptly");
-const AVLTreeGestor_1 = require("./AVLTreeGestor");
-class AVLgestorMenu {
-    constructor() {
-        this.gestor = new AVLTreeGestor_1.default();
-    }
+class TreeGestor {
+    constructor() { }
     menu() {
         return __awaiter(this, void 0, void 0, function* () {
             let menu = `
         \r 1. Agregar numero al arbol.
-        \r 2. Mostrar 'preorden'.
-        \r 3. Mostrar 'inorden'.
-        \r 4. Mostrar 'postorden'.
-        \r 5. Buscar.
+        \r 2. Mostrar.
+        \r 3. Buscar.
         \r 0. Salir.`;
             let opcion;
             do {
                 console.log(menu);
-                opcion = yield promptly.choose('Escoger opcion de menu: ', ['1', '2', '3', '4', '5', '0']);
-                let input;
+                opcion = yield promptly.choose('Escoger opcion de menu: ', ['1', '2', '3', '0']);
                 switch (opcion) {
                     case '1':
-                        input = yield promptly.prompt('Ingresar numero: ');
-                        this.gestor.insert(Number(input));
+                        yield this.insert();
                         break;
                     case '2':
-                        this.gestor.showPreOrder();
+                        this.tree.traverse();
                         break;
                     case '3':
-                        this.gestor.showInOrder();
-                        break;
-                    case '4':
-                        this.gestor.showPostOrder();
-                        break;
-                    case '5':
-                        input = yield promptly.prompt('Ingresar numero: ');
-                        this.gestor.search(Number(input));
+                        yield this.search();
                         break;
                     case '0':
+                        return;
                         break;
                     default:
                         break;
                 }
-            });
+            } while (opcion != '0');
+            return 1;
+        });
+    }
+    insert() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.tree == null) {
+                let degree = yield promptly.prompt('Ingresar grado/orden de arbol: ');
+                this.tree = new structures_1.BTree(Number(degree));
+            }
+            let numero = yield promptly.prompt('Ingresar numero: ');
+            this.tree.insert(Number(numero));
+        });
+    }
+    search() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let numero = yield promptly.prompt('Ingresar numero: ');
+            if (this.tree.search(Number(numero)) != null)
+                console.log('Numero encontrado.');
+            else
+                console.log('Numero no encontrado.');
         });
     }
 }
-exports.default = AVLgestorMenu;
+exports.default = TreeGestor;

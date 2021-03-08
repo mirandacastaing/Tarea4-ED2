@@ -1,53 +1,34 @@
 "use strict";
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf ||
-            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-            function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        if (typeof b !== "function" && b !== null)
-            throw new TypeError("Class extends value " + String(b) + " is not a constructor or null");
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-exports.__esModule = true;
-var Nodo_1 = require("../../src/structures/Nodo");
-var Tree_1 = require("../../src/structures/Tree");
-var AVLTree = /** @class */ (function (_super) {
-    __extends(AVLTree, _super);
-    function AVLTree() {
-        return _super !== null && _super.apply(this, arguments) || this;
-    }
+Object.defineProperty(exports, "__esModule", { value: true });
+const Nodo_1 = require("./Nodo");
+const Tree_1 = require("./Tree");
+class AVLTree extends Tree_1.default {
     //Override regular Tree insert
-    AVLTree.prototype.insertRecursive = function (nodo, num) {
-        if (num < nodo.num) {
-            if (nodo.leftNodo != null)
-                this.insertRecursive(nodo.leftNodo, num);
+    insertRecursive(nodo, num) {
+        if (num < nodo.getNum()) {
+            if (nodo.getLeftNodo() != null)
+                this.insertRecursive(nodo.getLeftNodo(), num);
             else {
-                nodo.leftNodo = new Nodo_1["default"](num);
+                nodo.setLeftNodo(new Nodo_1.default(num));
                 //Difference from Tree
-                nodo.leftNodo.setFather(nodo);
+                nodo.getLeftNodo().setFather(nodo);
                 this.balance(nodo, 'LEFT', true);
             }
         }
-        else if (num > nodo.num) {
-            if (nodo.rightNodo != null)
-                this.insertRecursive(nodo.rightNodo, num);
+        else if (num > nodo.getNum()) {
+            if (nodo.getRightNodo() != null)
+                this.insertRecursive(nodo.getRightNodo(), num);
             else {
-                nodo.rightNodo = new Nodo_1["default"](num);
+                nodo.setRightNodo(new Nodo_1.default(num));
                 //Difference from Tree
-                nodo.rightNodo.setFather(nodo);
+                nodo.getRightNodo().setFather(nodo);
                 this.balance(nodo, 'RIGHT', true);
             }
         }
-        else if (num == nodo.num)
-            console.log("Can't add an existing number.");
-    };
-    AVLTree.prototype.balance = function (nodo, leafSide, newNodo) {
+        else if (num == nodo.getNum())
+            console.log(`Can't add an existing number.`);
+    }
+    balance(nodo, leafSide, newNodo) {
         if (newNodo)
             leafSide == 'LEFT' ? nodo.decreaseBF() : nodo.increaseBF();
         else
@@ -56,71 +37,71 @@ var AVLTree = /** @class */ (function (_super) {
         if (nodo.getBF() == 0)
             return;
         else if (nodo.getBF() === -2) {
-            if (nodo.leftNodo.getBF() == 1)
+            if (nodo.getLeftNodo().getBF() == 1)
                 this.doubleRightRotation(nodo);
             else
                 this.simpleRightRotation(nodo);
             return;
         }
         else if (nodo.getBF() == 2) {
-            if (nodo.rightNodo.getBF() == -1)
+            if (nodo.getRightNodo().getBF() == -1)
                 this.doubleLeftRotation(nodo);
             else
                 this.simpleLeftRotation(nodo);
             return;
         }
         if (nodo.getFather() != null) {
-            nodo.getFather().rightNodo == nodo ? leafSide = 'RIGHT' : leafSide = 'LEFT';
+            nodo.getFather().getRightNodo() == nodo ? leafSide = 'RIGHT' : leafSide = 'LEFT';
             this.balance(nodo.getFather(), leafSide, newNodo);
         }
-    };
-    AVLTree.prototype.simpleRightRotation = function (nodo) {
-        var father = nodo.getFather();
-        var P = nodo;
-        var Q = P.leftNodo;
-        var B = Q.rightNodo;
+    }
+    simpleRightRotation(nodo) {
+        let father = nodo.getFather();
+        let P = nodo;
+        let Q = P.getLeftNodo();
+        let B = Q.getRightNodo();
         if (father != null)
-            father.rightNodo == P ? father.rightNodo = Q : father.leftNodo = Q;
+            father.getRightNodo() == P ? father.setRightNodo(Q) : father.setLeftNodo(Q);
         else
             this.root = Q;
-        P.leftNodo = B;
-        Q.rightNodo = P;
+        P.setLeftNodo(B);
+        Q.setRightNodo(P);
         P.setFather(Q);
         B != null ? B.setFather(P) : Q.setFather(father);
         P.setBF(0);
         Q.setBF(0);
-    };
-    AVLTree.prototype.simpleLeftRotation = function (nodo) {
-        var father = nodo.getFather();
-        var P = nodo;
-        var Q = P.rightNodo;
-        var B = Q.leftNodo;
+    }
+    simpleLeftRotation(nodo) {
+        let father = nodo.getFather();
+        let P = nodo;
+        let Q = P.getRightNodo();
+        let B = Q.getLeftNodo();
         if (father != null)
-            father.leftNodo == P ? father.leftNodo = Q : father.rightNodo = Q;
+            father.getLeftNodo() == P ? father.setLeftNodo(Q) : father.setRightNodo(Q);
         else
             this.root = Q;
-        P.rightNodo = B;
-        Q.leftNodo = P;
+        P.setRightNodo(B);
+        Q.setLeftNodo(P);
         P.setFather(Q);
         B != null ? B.setFather(P) : Q.setFather(father);
         P.setBF(0);
         Q.setBF(0);
-    };
-    AVLTree.prototype.doubleRightRotation = function (nodo) {
-        var father = nodo.getFather();
-        var P = nodo;
-        var Q = P.leftNodo;
-        var R = Q.rightNodo;
-        var B = R.leftNodo;
-        var C = R.rightNodo;
+    }
+    doubleRightRotation(nodo) {
+        let father = nodo.getFather();
+        let P = nodo;
+        let Q = P.getLeftNodo();
+        let R = Q.getRightNodo();
+        let B = R.getLeftNodo();
+        let C = R.getRightNodo();
         if (father != null)
-            father.rightNodo == P ? father.rightNodo = R : father.leftNodo = R;
+            father.getRightNodo() == P ? father.setRightNodo(R) : father.setLeftNodo(R);
         else
             this.root = Q;
-        P.leftNodo = C;
-        Q.rightNodo = B;
-        R.leftNodo = Q;
-        R.rightNodo = P;
+        P.setLeftNodo(C);
+        Q.setRightNodo(B);
+        R.setLeftNodo(Q);
+        R.setRightNodo(P);
         R.setFather(father);
         P.setFather(R);
         Q.setFather(R);
@@ -143,23 +124,23 @@ var AVLTree = /** @class */ (function (_super) {
                 break;
         }
         R.setBF(0);
-    };
-    AVLTree.prototype.doubleLeftRotation = function (nodo) {
-        var father = nodo.getFather();
-        var P = nodo;
-        var Q = P.rightNodo;
-        var R = Q.leftNodo;
-        var B = R.leftNodo;
-        var C = R.rightNodo;
+    }
+    doubleLeftRotation(nodo) {
+        let father = nodo.getFather();
+        let P = nodo;
+        let Q = P.getRightNodo();
+        let R = Q.getLeftNodo();
+        let B = R.getLeftNodo();
+        let C = R.getRightNodo();
         if (father != null)
-            father.rightNodo == P ? father.rightNodo = R : father.leftNodo = R;
+            father.getRightNodo() == P ? father.setRightNodo(R) : father.setLeftNodo(R);
         else
             this.root = Q;
         //Rebuild tree
-        P.rightNodo = C;
-        Q.leftNodo = B;
-        R.leftNodo = P;
-        R.rightNodo = Q;
+        P.setRightNodo(C);
+        Q.setLeftNodo(B);
+        R.setLeftNodo(P);
+        R.setRightNodo(Q);
         //Re-assign fathers
         R.setFather(father);
         P.setFather(R);
@@ -183,7 +164,6 @@ var AVLTree = /** @class */ (function (_super) {
                 break;
         }
         R.setBF(0);
-    };
-    return AVLTree;
-}(Tree_1["default"]));
-exports["default"] = AVLTree;
+    }
+}
+exports.default = AVLTree;

@@ -6,28 +6,28 @@ export default class AVLTree extends Tree{
 
     //Override regular Tree insert
     protected insertRecursive(nodo:Nodo, num:number):void{
-        if(num < nodo.num){
-            if(nodo.leftNodo != null)
-                this.insertRecursive(nodo.leftNodo, num);
+        if(num < nodo.getNum()){
+            if(nodo.getLeftNodo() != null)
+                this.insertRecursive(nodo.getLeftNodo(), num);
             else{
-                nodo.leftNodo = new Nodo(num);
+                nodo.setLeftNodo(new Nodo(num));
                 //Difference from Tree
-                nodo.leftNodo.setFather(nodo);
+                nodo.getLeftNodo().setFather(nodo);
                 this.balance(nodo,'LEFT', true);
             }
         }                
-        else if(num > nodo.num){
-            if(nodo.rightNodo != null)
-                this.insertRecursive(nodo.rightNodo, num);
+        else if(num > nodo.getNum()){
+            if(nodo.getRightNodo() != null)
+                this.insertRecursive(nodo.getRightNodo(), num);
             else{
-                nodo.rightNodo = new Nodo(num);
+                nodo.setRightNodo(new Nodo(num));
                 //Difference from Tree
-                nodo.rightNodo.setFather(nodo);
+                nodo.getRightNodo().setFather(nodo);
                 this.balance(nodo,'RIGHT', true);
 
             }
         }
-        else if(num == nodo.num)
+        else if(num == nodo.getNum())
             console.log(`Can't add an existing number.`);
     }
 
@@ -42,14 +42,14 @@ export default class AVLTree extends Tree{
             return;
 
         else if(nodo.getBF() === -2){
-            if(nodo.leftNodo.getBF() == 1)
+            if(nodo.getLeftNodo().getBF() == 1)
                 this.doubleRightRotation(nodo);
             else
                 this.simpleRightRotation(nodo);
             return;
         }
         else if(nodo.getBF() == 2){
-            if(nodo.rightNodo.getBF() == -1)
+            if(nodo.getRightNodo().getBF() == -1)
                 this.doubleLeftRotation(nodo);
             else
                 this.simpleLeftRotation(nodo);
@@ -57,7 +57,7 @@ export default class AVLTree extends Tree{
         }
 
         if(nodo.getFather() != null){
-            nodo.getFather().rightNodo == nodo ? leafSide = 'RIGHT' : leafSide = 'LEFT';
+            nodo.getFather().getRightNodo() == nodo ? leafSide = 'RIGHT' : leafSide = 'LEFT';
             this.balance(nodo.getFather(), leafSide, newNodo);
         }
 
@@ -68,16 +68,16 @@ export default class AVLTree extends Tree{
     private simpleRightRotation(nodo:Nodo):void{
         let father : Nodo = nodo.getFather();
         let P : Nodo = nodo;
-        let Q : Nodo = P.leftNodo;
-        let B : Nodo = Q.rightNodo;
+        let Q : Nodo = P.getLeftNodo();
+        let B : Nodo = Q.getRightNodo();
 
         if(father!=null)
-            father.rightNodo == P ? father.rightNodo = Q : father.leftNodo = Q;
+            father.getRightNodo() == P ? father.setRightNodo(Q) : father.setLeftNodo(Q);
         else
             this.root = Q;
 
-        P.leftNodo = B;
-        Q.rightNodo = P;
+        P.setLeftNodo(B);
+        Q.setRightNodo(P);
 
         P.setFather(Q);
 
@@ -90,16 +90,16 @@ export default class AVLTree extends Tree{
     private simpleLeftRotation(nodo:Nodo):void{
         let father : Nodo = nodo.getFather();
         let P : Nodo = nodo;
-        let Q : Nodo = P.rightNodo;
-        let B : Nodo = Q.leftNodo;
+        let Q : Nodo = P.getRightNodo();
+        let B : Nodo = Q.getLeftNodo();
 
         if(father!=null)
-            father.leftNodo == P ? father.leftNodo = Q : father.rightNodo = Q;
+            father.getLeftNodo() == P ? father.setLeftNodo(Q) : father.setRightNodo(Q);
         else
             this.root = Q;
 
-        P.rightNodo = B;
-        Q.leftNodo = P;
+        P.setRightNodo(B);
+        Q.setLeftNodo(P);
 
         P.setFather(Q);
 
@@ -112,20 +112,20 @@ export default class AVLTree extends Tree{
     private doubleRightRotation(nodo:Nodo):void{
         let father : Nodo = nodo.getFather();
         let P : Nodo = nodo;
-        let Q : Nodo = P.leftNodo;
-        let R : Nodo = Q.rightNodo;
-        let B : Nodo = R.leftNodo;
-        let C : Nodo = R.rightNodo;
+        let Q : Nodo = P.getLeftNodo();
+        let R : Nodo = Q.getRightNodo();
+        let B : Nodo = R.getLeftNodo();
+        let C : Nodo = R.getRightNodo();
 
         if(father!=null)
-            father.rightNodo == P ? father.rightNodo = R : father.leftNodo = R;
+            father.getRightNodo() == P ? father.setRightNodo(R) : father.setLeftNodo(R);
         else
             this.root = Q;
 
-        P.leftNodo = C;
-        Q.rightNodo = B;
-        R.leftNodo = Q;
-        R.rightNodo = P;
+        P.setLeftNodo(C);
+        Q.setRightNodo(B);
+        R.setLeftNodo(Q);
+        R.setRightNodo(P);
 
         R.setFather(father);
         P.setFather(R);
@@ -153,21 +153,21 @@ export default class AVLTree extends Tree{
     private doubleLeftRotation(nodo:Nodo):void{
         let father : Nodo = nodo.getFather();
         let P : Nodo = nodo;
-        let Q : Nodo = P.rightNodo;
-        let R : Nodo = Q.leftNodo;
-        let B : Nodo = R.leftNodo;
-        let C : Nodo = R.rightNodo;
+        let Q : Nodo = P.getRightNodo();
+        let R : Nodo = Q.getLeftNodo();
+        let B : Nodo = R.getLeftNodo();
+        let C : Nodo = R.getRightNodo();
 
         if(father!=null)
-            father.rightNodo == P ? father.rightNodo = R : father.leftNodo = R;
+            father.getRightNodo() == P ? father.setRightNodo(R) : father.setLeftNodo(R);
         else
             this.root = Q;
 
         //Rebuild tree
-        P.rightNodo = C;
-        Q.leftNodo = B;
-        R.leftNodo = P;
-        R.rightNodo = Q;
+        P.setRightNodo(C);
+        Q.setLeftNodo(B);
+        R.setLeftNodo(P);
+        R.setRightNodo(Q);
 
         //Re-assign fathers
         R.setFather(father);

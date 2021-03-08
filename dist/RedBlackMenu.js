@@ -9,51 +9,46 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const RedBlackMenu_1 = require("./RedBlackMenu");
 const promptly = require("promptly");
-const AVLTreeGestor_1 = require("./AVLTreeGestor");
-class AVLgestorMenu {
+class RedBlackMenu {
     constructor() {
-        this.gestor = new AVLTreeGestor_1.default();
+        this.gestor = new RedBlackMenu_1.default();
     }
     menu() {
         return __awaiter(this, void 0, void 0, function* () {
             let menu = `
         \r 1. Agregar numero al arbol.
-        \r 2. Mostrar 'preorden'.
-        \r 3. Mostrar 'inorden'.
-        \r 4. Mostrar 'postorden'.
-        \r 5. Buscar.
+        \r 2. Mostrar.
+        \r 3. Buscar.
+        \r 4. Remover.
         \r 0. Salir.`;
             let opcion;
             do {
                 console.log(menu);
-                opcion = yield promptly.choose('Escoger opcion de menu: ', ['1', '2', '3', '4', '5', '0']);
-                let input;
+                opcion = yield promptly.choose('Escoger opcion de menu: ', ['1', '2', '3', '4', '0']);
                 switch (opcion) {
                     case '1':
-                        input = yield promptly.prompt('Ingresar numero: ');
-                        this.gestor.insert(Number(input));
+                        // await this.gestor.insert();
                         break;
                     case '2':
-                        this.gestor.showPreOrder();
+                        // this.gestor.traverseTree();
                         break;
                     case '3':
-                        this.gestor.showInOrder();
+                        // await this.gestor.search();
                         break;
                     case '4':
-                        this.gestor.showPostOrder();
-                        break;
-                    case '5':
-                        input = yield promptly.prompt('Ingresar numero: ');
-                        this.gestor.search(Number(input));
+                        // await this.gestor.remove();
                         break;
                     case '0':
+                        return;
                         break;
                     default:
                         break;
                 }
-            });
+            } while (opcion != '0');
+            return 1;
         });
     }
 }
-exports.default = AVLgestorMenu;
+exports.default = RedBlackMenu;

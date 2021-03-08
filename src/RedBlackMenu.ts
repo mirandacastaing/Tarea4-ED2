@@ -1,11 +1,11 @@
-import BTreeGestor  from "./BTreeGestor";
+import RedBlackGestor  from "./RedBlackGestor";
 import * as promptly from 'promptly';
 
-export default class BTreeMenu {
+export default class RedBlackMenu {
 
     constructor() { }
 
-    private gestor: BTreeGestor = new BTreeGestor();
+    private gestor: RedBlackGestor = new RedBlackGestor();
 
     public async menu(): Promise<any> {
 
@@ -25,13 +25,13 @@ export default class BTreeMenu {
                     await this.gestor.insert();
                     break;
                 case '2':
-                    this.gestor.traverseTree();
+                    // this.gestor.traverseTree();
                     break;
                 case '3':
                     await this.gestor.search();
                     break;
                 case '4':
-                    await this.gestor.remove();
+                    // await this.gestor.remove();
                     break;
                 case '0':
                     return;

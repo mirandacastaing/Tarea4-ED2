@@ -1,7 +1,7 @@
 "use strict";
-exports.__esModule = true;
-var Nodo = /** @class */ (function () {
-    function Nodo(num) {
+Object.defineProperty(exports, "__esModule", { value: true });
+class Nodo {
+    constructor(num) {
         this.num = 0;
         this.rightNodo = null;
         this.leftNodo = null;
@@ -9,24 +9,41 @@ var Nodo = /** @class */ (function () {
         this.bf = 0;
         this.num = num;
     }
-    Nodo.prototype.getBF = function () {
+    setNum(num) {
+        this.num = num;
+    }
+    getNum() {
+        return this.num;
+    }
+    setRightNodo(nodo) {
+        this.rightNodo = nodo;
+    }
+    setLeftNodo(nodo) {
+        this.leftNodo = nodo;
+    }
+    getRightNodo() {
+        return this.rightNodo;
+    }
+    getLeftNodo() {
+        return this.leftNodo;
+    }
+    getBF() {
         return this.bf;
-    };
-    Nodo.prototype.setBF = function (bf) {
+    }
+    setBF(bf) {
         this.bf = bf;
-    };
-    Nodo.prototype.increaseBF = function () {
+    }
+    increaseBF() {
         this.bf++;
-    };
-    Nodo.prototype.decreaseBF = function () {
+    }
+    decreaseBF() {
         this.bf--;
-    };
-    Nodo.prototype.setFather = function (father) {
+    }
+    setFather(father) {
         this.father = father;
-    };
-    Nodo.prototype.getFather = function () {
+    }
+    getFather() {
         return this.father;
-    };
-    return Nodo;
-}());
-exports["default"] = Nodo;
+    }
+}
+exports.default = Nodo;
