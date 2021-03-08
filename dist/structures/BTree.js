@@ -1,37 +1,37 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const BNode_1 = require("./BNode");
-class BTree {
-    constructor(degree) {
+exports.__esModule = true;
+var BNode_1 = require("./BNode");
+var BTree = /** @class */ (function () {
+    function BTree(degree) {
         this.degree = degree;
         this.root = null;
     }
-    traverse() {
+    BTree.prototype.traverse = function () {
         if (this.root != null)
             this.root.traverse();
-    }
-    search(key) {
+    };
+    BTree.prototype.search = function (key) {
         if (this.root != null)
             this.root.search(key);
-    }
-    insert(key) {
+    };
+    BTree.prototype.insert = function (key) {
         if (this.root == null) {
-            this.root = new BNode_1.default(this.degree, true);
+            this.root = new BNode_1["default"](this.degree, true);
             this.root.keys[0] = key; //Insert key
             this.root.currKeys++;
         }
         else {
             //If root is fill
-            let rootFull = this.root.currKeys == 2 * this.degree - 1;
+            var rootFull = this.root.currKeys == 2 * this.degree - 1;
             if (rootFull) {
-                let newRoot = new BNode_1.default(this.degree, false);
+                var newRoot = new BNode_1["default"](this.degree, false);
                 // console.log('New Root:'+ newRoot.degree);
                 //Old root will be child now
                 newRoot.childs[0] = this.root;
                 //Split old root and move 1 key to new root
                 newRoot.splitChild(0, this.root);
                 //New root now has to childs. Check which one will have the new key
-                let i = 0;
+                var i = 0;
                 if (newRoot.keys[0] < key)
                     i++;
                 newRoot.childs[i].insertNonFull(key);
@@ -42,6 +42,7 @@ class BTree {
                 this.root.insertNonFull(key);
             }
         }
-    }
-}
-exports.default = BTree;
+    };
+    return BTree;
+}());
+exports["default"] = BTree;

@@ -36,23 +36,22 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 exports.__esModule = true;
-var structures_1 = require("./structures/");
+var BPTreeManager_1 = require("./BPTreeManager");
 var promptly = require("promptly");
-var AVLTreeMenu = /** @class */ (function () {
-    function AVLTreeMenu() {
-        this.tree = new structures_1.AVLTree();
+var BPTreeMenu = /** @class */ (function () {
+    function BPTreeMenu() {
     }
-    AVLTreeMenu.prototype.menu = function () {
+    BPTreeMenu.prototype.menu = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var menu, opcion, _a, numero;
+            var menu, opcion, _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        menu = "\n        \r 1. Agregar numero al arbol.\n        \r 2. Mostrar 'preorden'.\n        \r 3. Mostrar 'inorden'.\n        \r 4. Mostrar 'postorden'.\n        \r 0. Salir.";
+                        menu = "\n        \r 1. Agregar numero al arbol.\n        \r 2. Mostrar.\n        \r 3. Buscar.\n        \r 0. Salir.";
                         _b.label = 1;
                     case 1:
                         console.log(menu);
-                        return [4 /*yield*/, promptly.choose('Escoger opcion de menu: ', ['1', '2', '3', '4', '0'])];
+                        return [4 /*yield*/, promptly.choose('Escoger opcion de menu: ', ['1', '2', '3', '0'])];
                     case 2:
                         opcion = _b.sent();
                         _a = opcion;
@@ -60,34 +59,68 @@ var AVLTreeMenu = /** @class */ (function () {
                             case '1': return [3 /*break*/, 3];
                             case '2': return [3 /*break*/, 5];
                             case '3': return [3 /*break*/, 6];
-                            case '4': return [3 /*break*/, 7];
                             case '0': return [3 /*break*/, 8];
                         }
                         return [3 /*break*/, 9];
-                    case 3: return [4 /*yield*/, promptly.prompt('Ingresar numero: ')];
+                    case 3: return [4 /*yield*/, this.insert()];
                     case 4:
-                        numero = _b.sent();
-                        this.tree.insert(Number(numero));
+                        _b.sent();
                         return [3 /*break*/, 10];
                     case 5:
-                        this.tree.showPreOrder();
+                        console.log(this.m.traverse());
                         return [3 /*break*/, 10];
-                    case 6:
-                        this.tree.showInOrder();
-                        return [3 /*break*/, 10];
+                    case 6: return [4 /*yield*/, this.search()];
                     case 7:
-                        this.tree.showPostOrder();
+                        _b.sent();
                         return [3 /*break*/, 10];
-                    case 8: return [3 /*break*/, 10];
+                    case 8: return [2 /*return*/];
                     case 9: return [3 /*break*/, 10];
                     case 10:
                         if (opcion != '0') return [3 /*break*/, 1];
                         _b.label = 11;
-                    case 11: return [2 /*return*/];
+                    case 11: return [2 /*return*/, 1];
                 }
             });
         });
     };
-    return AVLTreeMenu;
+    BPTreeMenu.prototype.insert = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var degree, numero;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!(this.m == null)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, promptly.prompt('Ingresar grado/orden de arbol: ')];
+                    case 1:
+                        degree = _a.sent();
+                        this.m = new BPTreeManager_1["default"](degree);
+                        _a.label = 2;
+                    case 2: return [4 /*yield*/, promptly.prompt('Ingresar numero: ')];
+                    case 3:
+                        numero = _a.sent();
+                        this.m.insert(numero);
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    BPTreeMenu.prototype.search = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var numero;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, promptly.prompt('Ingresar numero: ')];
+                    case 1:
+                        numero = _a.sent();
+                        if (this.m.search(numero))
+                            console.log('Numero encontrado.');
+                        else
+                            console.log('Numero no encontrado.');
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    return BPTreeMenu;
 }());
-exports["default"] = AVLTreeMenu;
+exports["default"] = BPTreeMenu;

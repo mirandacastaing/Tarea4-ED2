@@ -1,65 +1,66 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const Nodo_1 = require("./Nodo");
-class Tree {
-    constructor() {
+exports.__esModule = true;
+var Nodo_1 = require("./Nodo");
+var Tree = /** @class */ (function () {
+    function Tree() {
         this.root = null;
     }
-    insertRecursive(nodo, num) {
+    Tree.prototype.insertRecursive = function (nodo, num) {
         if (num < nodo.num) {
             if (nodo.leftNodo != null)
                 this.insertRecursive(nodo.leftNodo, num);
             else
-                nodo.leftNodo = new Nodo_1.default(num);
+                nodo.leftNodo = new Nodo_1["default"](num);
         }
         else if (num > nodo.num) {
             if (nodo.rightNodo != null)
                 this.insertRecursive(nodo.rightNodo, num);
             else
-                nodo.rightNodo = new Nodo_1.default(num);
+                nodo.rightNodo = new Nodo_1["default"](num);
         }
-    }
-    insert(num) {
+    };
+    Tree.prototype.insert = function (num) {
         if (!this.root)
-            this.root = new Nodo_1.default(num);
+            this.root = new Nodo_1["default"](num);
         else
             this.insertRecursive(this.root, num);
-    }
-    showPreOrderRec(nodo) {
+    };
+    Tree.prototype.showPreOrderRec = function (nodo) {
         if (nodo != null) {
             process.stdout.write(String(nodo.num) + ',');
             this.showPreOrderRec(nodo.leftNodo);
             this.showPreOrderRec(nodo.rightNodo);
         }
-    }
-    showInOrderRec(nodo) {
+    };
+    Tree.prototype.showInOrderRec = function (nodo) {
         if (nodo != null) {
             this.showInOrderRec(nodo.leftNodo);
             process.stdout.write(String(nodo.num) + ',');
             this.showInOrderRec(nodo.rightNodo);
         }
-    }
-    showPostOrderRec(nodo) {
+    };
+    Tree.prototype.showPostOrderRec = function (nodo) {
         if (nodo != null) {
             this.showPostOrderRec(nodo.leftNodo);
             this.showPostOrderRec(nodo.rightNodo);
             process.stdout.write(String(nodo.num) + ',');
         }
-    }
-    showInOrder() {
+    };
+    Tree.prototype.showInOrder = function () {
         this.showInOrderRec(this.root);
-    }
-    showPreOrder() {
+    };
+    Tree.prototype.showPreOrder = function () {
         this.showPreOrderRec(this.root);
-    }
-    showPostOrder() {
+    };
+    Tree.prototype.showPostOrder = function () {
         this.showPostOrderRec(this.root);
-    }
-    isEmpty() {
+    };
+    Tree.prototype.isEmpty = function () {
         if (this.root == null)
             return true;
         else
             return false;
-    }
-}
-exports.default = Tree;
+    };
+    return Tree;
+}());
+exports["default"] = Tree;
