@@ -17,7 +17,7 @@ export default class RedBlackGestor {
         }
 
         let num = await promptly.prompt('Ingresar numero: ');
-        this.tree.insert(num);
+        this.tree.insert(Number(num));
     }
 
     public async search(): Promise<any> {
@@ -25,7 +25,7 @@ export default class RedBlackGestor {
             return console.log('Debe crear un arbol primero.');
 
         let key = await promptly.prompt('Ingresar key: ');
-        let arr = this.tree.searchTree(key);
+        let arr = this.tree.searchTree(Number(key));
         if (arr != null)
             console.log('Numero encontrado.');
         else
@@ -37,6 +37,6 @@ export default class RedBlackGestor {
             return console.log('Debe crear un arbol primero.');
 
         let key = await promptly.prompt('Ingresar el key: ');
-        let arr = this.tree.deleteNode(key);
+        let arr = this.tree.deleteNode(Number(key));
     }
 }

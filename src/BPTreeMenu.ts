@@ -43,16 +43,16 @@ export default class BPTreeMenu {
     private async insert(): Promise<any> {
         if (this.m == null) {
             let degree = await promptly.prompt('Ingresar grado/orden de arbol: ');
-            this.m = new BPTreeManager(degree);
+            this.m = new BPTreeManager(Number(degree));
         }
 
-        let numero: number = await promptly.prompt('Ingresar numero: ');
-        this.m.insert(numero);
+        let numero = await promptly.prompt('Ingresar numero: ');
+        this.m.insert(Number(numero));
     }
 
     private async search(): Promise<any> {
         let numero = await promptly.prompt('Ingresar numero: ');
-        if (this.m.search(numero))
+        if (this.m.search(Number(numero)))
             console.log('Numero encontrado.');
         else
             console.log('Numero no encontrado.');
