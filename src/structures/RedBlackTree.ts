@@ -1,455 +1,427 @@
-import { RedBlackNode } from './RedBlackNode'
-export { RedBlackNode }
+import { RedBlackNode } from './RedBlackNode';
+export class RedBlackTree {
+    private root: RedBlackNode;
+    private TNULL: RedBlackNode;
 
-
-/** Type for the less-than criterium after which the entries will be sorted:
- * a function to return true if entry `a` is less than entry `b`.
- * @typeparam K key type, entries are sorted by key
- */
-export type LessOp<K> = (a: K, b: K) => boolean
-
-
-/** A red-black tree written in TypeScript. The entries are stored sorted after
- * the criterium `lessOp` passed tp the constructor or by default by the
- * comparison operator `<` (less). Insertion, deletion and iteration have
- * O(log n) time complexity where n is the number of entries in the tree.
- * @typeparam K key type, entries are sorted by key
- * @typeparam V value type
- */
-export class RedBlackTree<K = string, V = any> implements Map<K, V> {
-  /** @internal */ _root: RedBlackNode<K, V> = RedBlackNode.nilNode
-  /** @internal */ _size: number = 0
-  /** @internal */ readonly _less: Less<K, RedBlackNode<K, V>>
-
-    /** Create a new red-black tree optionally with entries from `source` and
-     * the sorting criterium `lessOp`.
-     * @param source an array of entries or an iterable of entries or an object
-     * @param lessOp sorting criterum: a function taking two arguments and
-     *   returning true if the first is less than the second argument, should
-     *   run in O(1) time to ensure the red-black tree efficiency
-     */
-    constructor(
-        source?: IterableIterator<[K, V]>,
-        lessOp: LessOp<K> = (a, b) => a < b,
-    ) {
-        this._less = (a, b) => lessOp(a, b.key)
-        if (source)
-            for (const entry of source)
-                this._insertNode(new RedBlackNode(entry[0], entry[1]))
-    }
-
-    insert(k, v) {
-        this.set(k, v);
-    }
-
-    /** @returns `"[Tree size:<size>]"` with `<size>` as in [[Tree.size]] */
-    toString(): string {
-        return `[${this[Symbol.toStringTag]} size:${this.size}]`
-    }
-
-    /** Iterator over nodes, sorted by key, O(log n) each step
-     * @param start iteration start with this node (inclusive)
-     * @param end iteration end before this node (exclusive) or [[Node.nilNode]]
-     *   to iterate to the end
-     */
-    nodes(start?: RedBlackNode<K, V>, end?: RedBlackNode<K, V>): IterableIterator<RedBlackNode<K, V>> {
-        return this._iterator<RedBlackNode<K, V>>(node => node, start, end)
-    }
-
-    /** Get a node with the key, O(log n)
-     * @param key the key
-     */
-    getNode(key: K): RedBlackNode<K, V> {
-        return this._findNode(key)
-    }
-
-    /** The node with the minimum key, O(log n) */
-    get minNode(): RedBlackNode<K, V> {
-        return this._firstNode()
-    }
-
-    /** The node with the maximum key, O(log n) */
-    get maxNode(): RedBlackNode<K, V> {
-        return this._lastNode()
-    }
-
-    /** Clear the tree and make it unusable */
-    kill() {
-        this._root = deadNode()
-        this._size = NaN
-        Object.freeze(this)
-    }
-
-    // --- Start implementing Map ---
-
-    /** @returns the number of entries in the tree, O(1) */
-    get size() {
-        return this._size
-    }
-
-    /** Used by [[Tree.toString]] */
-    [Symbol.toStringTag]: string = 'Tree'
-
-    /** @returns true if an entry with key is found, O(log n) */
-    has(key: K): boolean {
-        return this._findNode(key).ok
-    }
-
-    /** Get an entry with the key, O(log n) */
-    get(key: K): V | undefined {
-        const node = this._findNode(key)
-
-        return node.ok ? node.value : undefined
-    }
-
-    /** Set an entry, O(log n) */
-    set(key: K, value: V): this {
-        const node = this._findNode(key)
-        node.ok ? node.value = value : this._insertNode(new RedBlackNode(key, value))
-        return this
-    }
-
-    /** Delete an entry with the key from the tree, O(log n)
-     * @returns true if there was a key
-     */
-    delete(key: K): boolean {
-        const node = this._findNode(key)
-        const result = this._deleteNode(node)
-        if (node.ok)
-            node._parent = node._left = node._right = RedBlackNode.nilNode
-        return result
-    }
-
-    /** Clear the tree, same as `Map.clear()`, O(1) */
-    clear(): void {
-        this._root = RedBlackNode.nilNode
-        this._size = 0
-    }
-
-    /** Invoke `f` over all entries sorted by key, same as `Map.forEach()`
-     * @param f Function taking value, key and container as parameters which
-     *   will be called for all entries of the tree in their order
-     * @param self `this` inside f
-     */
-    forEach(f: (value: V, key: K, map: Map<K, V>) => void, self?: any): void {
-        for (const entry of this.entries())
-            f.call(self, entry[1], entry[0], this)
-    }
-
-    /** Indicate that Tree is iterable but same as [[Tree.entries]] */
-    [Symbol.iterator](): IterableIterator<[K, V]> {
-        return this.entries()
-    }
-
-    /** Iterator over entries, sorted by key, O(log n) each step */
-    entries(start?: RedBlackNode<K, V>, end?: RedBlackNode<K, V>): IterableIterator<[K, V]> {
-        return this._iterator<[K, V]>(node => node.entry(), start, end)
-    }
-
-    /** Iterator over keys, sorted, O(log n) each step */
-    keys(start?: RedBlackNode<K, V>, end?: RedBlackNode<K, V>): IterableIterator<K> {
-        return this._iterator<K>(node => node.key, start, end)
-    }
-
-    /** Iterator over values, sorted by key, O(log n) each step */
-    values(start?: RedBlackNode<K, V>, end?: RedBlackNode<K, V>): IterableIterator<V> {
-        return this._iterator<V>(node => node.value, start, end)
-    }
-
-  // TODO perhaps: https://github.com/tc39/proposal-collection-methods
-
-  // --- End implementing Map ---
-
-  // --------------------------------------------------------------------------
-  // From here: not part of the public API, no documentation comments any more
-
-  // get    function to map from node to iterator value R
-  // start  start node for iterating over a tree subset (inclusive)
-  // end    end node for iterating over a tree subset (exclusive)
-  /** @internal */ _iterator<R>(
-        get: (node: RedBlackNode<K, V>) => R,
-        start?: RedBlackNode<K, V>,
-        end?: RedBlackNode<K, V>,
-    ): IterableIterator<R> {
-        return new Iter<K, V, R, RedBlackNode<K, V>, RedBlackTree<K, V>>(this, get, start, end)
-    }
-
-  /** @internal */ _firstNode(node: RedBlackNode<K, V> = this._root): RedBlackNode<K, V> {
-        while (node._left.ok) node = node._left
-        return node
-    }
-
-  /** @internal */ _lastNode(node: RedBlackNode<K, V> = this._root): RedBlackNode<K, V> {
-        while (node._right.ok) node = node._right
-        return node
-    }
-
-  /** @internal */ _nextNode(node: RedBlackNode<K, V>): RedBlackNode<K, V> {
-        if (node.nil) return node
-        if (node._right.ok) return this._firstNode(node._right)
-        let parent = node._parent
-        while (parent.ok && node === parent._right) {
-            node = parent
-            parent = parent._parent
+    private preOrderHelper(node: RedBlackNode): void {
+        if (node != this.TNULL) {
+            console.log(node.data + " ");
+            this.preOrderHelper(node.left);
+            this.preOrderHelper(node.right);
         }
-        return parent
     }
 
-  /** @internal */_findNode(
-        key: K,
-        node: RedBlackNode<K, V> = this._root,
-    ): RedBlackNode<K, V> {
-        while (node.ok && key !== node.key)
-            node = this._less(key, node) ? node._left : node._right
-        return node
+    private inOrderHelper(node: RedBlackNode): void {
+        if (node != this.TNULL) {
+            this.inOrderHelper(node.left);
+            console.log(node.data + " ");
+            this.inOrderHelper(node.right);
+        }
     }
 
-  /** @internal */_insertNode(node: RedBlackNode<K, V>): this {
-        if (node.nil) return this
+    private postOrderHelper(node: RedBlackNode): void {
+        if (node != this.TNULL) {
+            this.postOrderHelper(node.left);
+            this.postOrderHelper(node.right);
+            console.log(node.data + " ");
+        }
+    }
 
-        node._parent = node._left = node._right = RedBlackNode.nilNode
-        this._size++
-        if (this._root.nil) {
-            this._root = node
-            return this
+    private searchTreeHelper(node: RedBlackNode, key: number): RedBlackNode {
+        if (node == this.TNULL || key == node.data) {
+            return node;
         }
 
-        let parent, n
-        parent = n = this._root
-        while (n.ok) {
-            parent = n
-            n = this._less(node.key, n) ? n._left : n._right
+        if (key < node.data) {
+            return this.searchTreeHelper(node.left, key);
         }
-        node._parent = parent
-
-        // Empirical insight from fuzzying: parent is never nil. I tried to create
-        // a situation where parent is nil (add two nodes), but couldn't make
-        // parent nil. However should it happen anyway (will throw TypeError), an
-        // if branch could be added: if (parent.nil) this._root = node ... else
-        if (this._less(node.key, parent)) parent._left = node
-        else parent._right = node
-        node._red = true
-
-        // Reinstate the red-black tree invariants after the insert
-        while (node._parent._red) {
-            parent = node._parent
-            const grandp = parent._parent
-            if (parent === grandp._left) {
-                if (grandp._right._red) {
-                    parent._black = grandp._right._black = grandp._red = true
-                    node = grandp
-                    continue
-                }
-                if (node === parent._right) {
-                    this._leftRotate(parent)
-                        ;[parent, node] = [node, parent]
-                }
-                parent._black = grandp._red = true
-                this._rightRotate(grandp)
-                continue
-            }
-            if (grandp._left._red) {
-                parent._black = grandp._left._black = grandp._red = true
-                node = grandp
-                continue
-            }
-            if (node === parent._left) {
-                this._rightRotate(parent)
-                    ;[parent, node] = [node, parent]
-            }
-            parent._black = grandp._red = true
-            this._leftRotate(grandp)
-        }
-        this._root._black = true
-        return this
+        return this.searchTreeHelper(node.right, key);
     }
 
-  // Always make sure that node is member of the tree! The tree can break,
-  // the left child's key might turn larger or other bad things. Also, after
-  // delete the node is not part of the tree anymore and links are invalid.
-  // The best bet is to set parent, left and child to nil after the delete.
-  /** @internal */_deleteNode(node: RedBlackNode<K, V>): boolean {
-        if (node.nil) return false
+    // fix the rb tree modified by the delete operation
+    private fixDelete(x: RedBlackNode): void {
+        var s;
+        while (x != this.root && x.color == 0) {
+            if (x == x.parent.left) {
+                s = x.parent.right;
+                if (s.color == 1) {
+                    // case 3.1
+                    s.color = 0;
+                    x.parent.color = 1;
+                    this.leftRotate(x.parent);
+                    s = x.parent.right;
+                }
 
-        this._size--
+                if (s.left.color == 0 && s.right.color == 0) {
+                    // case 3.2
+                    s.color = 1;
+                    x = x.parent;
+                } else {
+                    if (s.right.color == 0) {
+                        // case 3.3
+                        s.left.color = 0;
+                        s.color = 1;
+                        this.rightRotate(s);
+                        s = x.parent.right;
+                    }
 
-        let child: RedBlackNode<K, V>, parent: RedBlackNode<K, V>, red: boolean
-        if (node._left.ok && node._right.ok) {
-            const next = this._firstNode(node._right)
-            if (node === this._root) this._root = next
-            else node === node._parent._left
-                ? node._parent._left = next
-                : node._parent._right = next
-            child = next._right, parent = next._parent, red = next._red
-            if (node === parent) parent = next
-            else {
-                if (child.ok) child._parent = parent
-                parent._left = child
-                next._right = node._right
-                node._right._parent = next
-            }
-            next._parent = node._parent
-            next._black = node._black
-            node._left._parent = next
-            if (red) return true
-        }
-        else {
-            node._left.ok ? child = node._left : child = node._right
-            parent = node._parent, red = node._red
-            if (child.ok) child._parent = parent
-            if (node === this._root) this._root = child
-            else parent._left === node ? parent._left = child : parent._right = child
-            if (red) return true
-        }
+                    // case 3.4
+                    s.color = x.parent.color;
+                    x.parent.color = 0;
+                    s.right.color = 0;
+                    this.leftRotate(x.parent);
+                    x = this.root;
+                }
+            } else {
+                s = x.parent.left;
+                if (s.color == 1) {
+                    // case 3.1
+                    s.color = 0;
+                    x.parent.color = 1;
+                    this.rightRotate(x.parent);
+                    s = x.parent.left;
+                }
 
-        // Reinstate the red-black tree invariants after the delete
-        node = child
-        while (node !== this._root && node._black) {
-            if (node === parent._left) {
-                let brother = parent._right
-                if (brother._red) {
-                    brother._black = parent._red = true
-                    this._leftRotate(parent)
-                    brother = parent._right
+                if (s.right.color == 0 && s.right.color == 0) {
+                    // case 3.2
+                    s.color = 1;
+                    x = x.parent;
+                } else {
+                    if (s.left.color == 0) {
+                        // case 3.3
+                        s.right.color = 0;
+                        s.color = 1;
+                        this.leftRotate(s);
+                        s = x.parent.left;
+                    }
+
+                    // case 3.4
+                    s.color = x.parent.color;
+                    x.parent.color = 0;
+                    s.left.color = 0;
+                    this.rightRotate(x.parent);
+                    x = this.root;
                 }
-                if (brother._left._black && brother._right._black) {
-                    brother._red = true
-                    node = parent
-                    parent = node._parent
-                    continue
-                }
-                if (brother._right._black) {
-                    brother._left._black = brother._red = true
-                    this._rightRotate(brother)
-                    brother = parent._right
-                }
-                brother._black = parent._black
-                parent._black = brother._right._black = true
-                this._leftRotate(parent)
-                node = this._root
-                break
-            }
-            else {
-                let brother = parent._left
-                if (brother._red) {
-                    brother._black = parent._red = true
-                    this._rightRotate(parent)
-                    brother = parent._left
-                }
-                if (brother._left._black && brother._right._black) {
-                    brother._red = true
-                    node = parent
-                    parent = node._parent
-                    continue
-                }
-                if (brother._left._black) {
-                    brother._right._black = brother._red = true
-                    this._leftRotate(brother)
-                    brother = parent._left
-                }
-                brother._black = parent._black
-                parent._black = brother._left._black = true
-                this._rightRotate(parent)
-                node = this._root
-                break
             }
         }
-        if (node.ok) node._black = true
-        return true
+        x.color = 0;
     }
 
-  /** @internal */ _leftRotate(node: RedBlackNode<K, V>): void {
-        const child = node._right
-        node._right = child._left
-        if (child._left.ok) child._left._parent = node
-        child._parent = node._parent
-        if (node === this._root) this._root = child
-        else if (node === node._parent._left) node._parent._left = child
-        else node._parent._right = child
-        node._parent = child
-        child._left = node
+
+    private rbTransplant(u: RedBlackNode, v: RedBlackNode) {
+        if (u.parent == null) {
+            this.root = v;
+        } else if (u == u.parent.left) {
+            u.parent.left = v;
+        } else {
+            u.parent.right = v;
+        }
+        v.parent = u.parent;
     }
 
-  /** @internal */ _rightRotate(node: RedBlackNode<K, V>): void {
-        const child = node._left
-        node._left = child._right
-        if (child._right.ok) child._right._parent = node
-        child._parent = node._parent
-        if (node === this._root) this._root = child
-        else if (node === node._parent._left) node._parent._left = child
-        else node._parent._right = child
-        node._parent = child
-        child._right = node
-    }
-}
+    private deleteNodeHelper(node: RedBlackNode, key: number): void {
+        // find the node containing key
+        var z = this.TNULL;
+        var x, y;
+        while (node != this.TNULL) {
+            if (node.data == key) {
+                z = node;
+            }
 
+            if (node.data <= key) {
+                node = node.right;
+            } else {
+                node = node.left;
+            }
+        }
 
-// type guard (used by assign())
-function isIterable(obj: any): obj is Iterable<unknown> {
-    return obj && typeof obj[Symbol.iterator] === 'function'
-}
+        if (z == this.TNULL) {
+            console.log("Couldn't find key in the tree");
+            return;
+        }
 
+        y = z;
+        var yOriginalColor = y.color;
+        if (z.left == this.TNULL) {
+            x = z.right;
+            this.rbTransplant(z, z.right);
+        } else if (z.right == this.TNULL) {
+            x = z.left;
+            this.rbTransplant(z, z.left);
+        } else {
+            y = this.minimum(z.right);
+            yOriginalColor = y.color;
+            x = y.right;
+            if (y.parent == z) {
+                x.parent = y;
+            } else {
+                this.rbTransplant(y, y.right);
+                y.right = z.right;
+                y.right.parent = y;
+            }
 
-// Different from LessOp: second argument is Node, not key!
-type Less<K, N> = (key: K, node: N) => boolean
-
-// Interface to expose a few properties of Tree to the iterator
-interface IterTree<K, N> {
-    _less: Less<K, N>
-    _nextNode(node: N): N
-    _firstNode(): N
-}
-
-// Iterator implementation
-// K  key type
-// V  value type
-// R  iterator result value type, e.g. [K, V] for entries()
-// N  tree node type, typically N extends RedBlackNode<K, V>
-// T  tree type, typically T extends IterTree<N>
-class Iter<K, V, R, N extends RedBlackNode<K, V>, T extends IterTree<K, N>>
-    implements IterableIterator<R>
-{
-  /** @internal */ _started: boolean = false
-  /** @internal */ _node: N
-  /** @internal */ _end: N
-  /** @internal */ _tree: T
-  /** @internal */ _result: (node: N) => R
-
-    constructor(
-        tree: T,
-        result: (node: N) => R,
-        start: N = RedBlackNode.nilNode as N,
-        end: N = RedBlackNode.nilNode as N,
-    ) {
-        this._tree = tree
-        this._result = result
-        this._node = start
-        if (start.ok && end.ok && !tree._less(start.key, end)) end = start
-        this._end = end
+            this.rbTransplant(z, y);
+            y.left = z.left;
+            y.left.parent = y;
+            y.color = z.color;
+        }
+        if (yOriginalColor == 0) {
+            this.fixDelete(x);
+        }
     }
 
-    [Symbol.iterator](): IterableIterator<R> { return this }
+    // fix the red-black tree
+    private fixInsert(k: RedBlackNode): void {
+        var u: RedBlackNode;
+        while (k.parent.color == 1) {
+            if (k.parent == k.parent.parent.right) {
+                u = k.parent.parent.left; // uncle
+                if (u?.color == 1) {
+                    // case 3.1
+                    u.color = 0;
+                    k.parent.color = 0;
+                    k.parent.parent.color = 1;
+                    k = k.parent.parent;
+                } else {
+                    if (k == k.parent.left) {
+                        // case 3.2.2
+                        k = k.parent;
+                        this.rightRotate(k);
+                    }
+                    // case 3.2.1
+                    k.parent.color = 0;
+                    k.parent.parent.color = 1;
+                    this.leftRotate(k.parent.parent);
+                }
+            } else {
+                u = k.parent.parent.right; // uncle
 
-    next(): IteratorResult<R> {
-        if (this._node.nil) this._node = this._tree._firstNode()
-        if (this._started) this._node = this._tree._nextNode(this._node)
-        this._started = true
-
-        const done = this._node.nil || this._node === this._end
-        const value = done ? undefined : this._result(this._node)
-        return { done, value } as IteratorResult<R>
-        //                     ^^^^^^^^^^^^^^^^^^^^
-        // See https://github.com/Microsoft/TypeScript/issues/11375
+                if (u?.color == 1) {
+                    // mirror case 3.1
+                    u.color = 0;
+                    k.parent.color = 0;
+                    k.parent.parent.color = 1;
+                    k = k.parent.parent;
+                } else {
+                    if (k == k.parent.right) {
+                        // mirror case 3.2.2
+                        k = k.parent;
+                        this.leftRotate(k);
+                    }
+                    // mirror case 3.2.1
+                    k.parent.color = 0;
+                    k.parent.parent.color = 1;
+                    this.rightRotate(k.parent.parent);
+                }
+            }
+            if (k == this.root) {
+                break;
+            }
+        }
+        this.root.color = 0;
     }
-}
 
+    private printHelper(root: RedBlackNode, indent: string, last: boolean): void {
+        // print the tree structure on the screen
+        if (root != this.TNULL) {
+            console.log(indent);
+            if (last) {
+                console.log("R----");
+                indent += "     ";
+            } else {
+                console.log("L----");
+                indent += "|    ";
+            }
 
-// Create an object structurally compatible to Node but throwing on any access
-const throwDead = () => { throw new TypeError('Tree is dead') }
-function deadNode(): RedBlackNode<any, any> {
-    const propNames = '_key _value _parent _left _right _black _red ok nil'
-    const properties: PropertyDescriptorMap = {}
-    for (const propName of propNames.split(' '))
-        properties[propName] = { get: throwDead, set: throwDead }
-    return Object.defineProperties({}, properties)
+            var sColor = root.color == 1 ? "RED" : "BLACK";
+            console.log(root.data + "(" + sColor + ")");
+            this.printHelper(root.left, indent, false);
+            this.printHelper(root.right, indent, true);
+        }
+    }
+
+    public RedBlackTree() {
+        this.TNULL = new RedBlackNode();
+        this.TNULL.color = 0;
+        this.TNULL.left = null;
+        this.TNULL.right = null;
+        this.root = this.TNULL;
+    }
+
+    // Pre-Order traversal
+    // RedBlackNode.Left Subtree.Right Subtree
+    public preorder(): void {
+        this.preOrderHelper(this.root);
+    }
+
+    // In-Order traversal
+    // Left Subtree . RedBlackNode . Right Subtree
+    public inorder(): void {
+        this.inOrderHelper(this.root);
+    }
+
+    // Post-Order traversal
+    // Left Subtree . Right Subtree . RedBlackNode
+    public postorder(): void {
+        this.postOrderHelper(this.root);
+    }
+
+    // search the tree for the key k
+    // and return the corresponding node
+    public searchTree(k: number): RedBlackNode {
+        return this.searchTreeHelper(this.root, k);
+    }
+
+    // find the node with the minimum key
+    public minimum(node: RedBlackNode): RedBlackNode {
+        while (node.left != this.TNULL) {
+            node = node.left;
+        }
+        return node;
+    }
+
+    // find the node with the maximum key
+    public maximum(node: RedBlackNode): RedBlackNode {
+        while (node.right != this.TNULL) {
+            node = node.right;
+        }
+        return node;
+    }
+
+    // find the successor of a given node
+    public successor(x: RedBlackNode): RedBlackNode {
+        // if the right subtree is not null,
+        // the successor is the leftmost node in the
+        // right subtree
+        if (x.right != this.TNULL) {
+            return this.minimum(x.right);
+        }
+
+        // else it is the lowest ancestor of x whose
+        // left child is also an ancestor of x.
+        var y = x.parent;
+        while (y != this.TNULL && x == y.right) {
+            x = y;
+            y = y.parent;
+        }
+        return y;
+    }
+
+    // find the predecessor of a given node
+    public predecessor(x: RedBlackNode): RedBlackNode {
+        // if the left subtree is not null,
+        // the predecessor is the rightmost node in the 
+        // left subtree
+        if (x.left != this.TNULL) {
+            return this.maximum(x.left);
+        }
+
+        var y = x.parent;
+        while (y != this.TNULL && x == y.left) {
+            x = y;
+            y = y.parent;
+        }
+
+        return y;
+    }
+
+    // rotate left at node x
+    public leftRotate(x: RedBlackNode): void {
+        var y = x.right;
+        x.right = y.left;
+        if (y.left != this.TNULL) {
+            y.left.parent = x;
+        }
+        y.parent = x.parent;
+        if (x.parent == null) {
+            this.root = y;
+        } else if (x == x.parent.left) {
+            x.parent.left = y;
+        } else {
+            x.parent.right = y;
+        }
+        y.left = x;
+        x.parent = y;
+    }
+
+    // rotate right at node x
+    public rightRotate(x: RedBlackNode): void {
+        var y = x.left;
+        x.left = y.right;
+        if (y.right != this.TNULL) {
+            y.right.parent = x;
+        }
+        y.parent = x.parent;
+        if (x.parent == null) {
+            this.root = y;
+        } else if (x == x.parent.right) {
+            x.parent.right = y;
+        } else {
+            x.parent.left = y;
+        }
+        y.right = x;
+        x.parent = y;
+    }
+
+    // insert the key to the tree in its appropriate position
+    // and fix the tree
+    public insert(key: number): void {
+        // Ordinary Binary Search Insertion
+        var node = new RedBlackNode();
+        node.parent = null;
+        node.data = key;
+        node.left = this.TNULL;
+        node.right = this.TNULL;
+        node.color = 1; // new node must be red
+
+        var y = null;
+        var x = this.root;
+
+        while (x != this.TNULL) {
+            y = x;
+            if (node.data < x.data) {
+                x = x.left;
+            } else {
+                x = x.right;
+            }
+        }
+
+        // y is parent of x
+        node.parent = y;
+        if (y == null) {
+            this.root = node;
+        } else if (node.data < y.data) {
+            y.left = node;
+        } else {
+            y.right = node;
+        }
+
+        // if new node is a root node, simply return
+        if (node.parent == null) {
+            node.color = 0;
+            return;
+        }
+
+        // if the grandparent is null, simply return
+        if (node.parent.parent == null) {
+            return;
+        }
+
+        // Fix the tree
+        this.fixInsert(node);
+    }
+
+    public getRoot(): RedBlackNode {
+        return this.root;
+    }
+
+    // delete the node from the tree
+    public deleteNode(data: number): void {
+        this.deleteNodeHelper(this.root, data);
+    }
+
+    // print the tree structure on the screen
+    public prettyPrint(): void {
+        this.printHelper(this.root, "", true);
+    }
 }

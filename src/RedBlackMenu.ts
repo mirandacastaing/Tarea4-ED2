@@ -10,6 +10,8 @@ export default class RedBlackMenu {
     public async menu(): Promise<any> {
 
         let menu: string = `
+
+        \r Arbol rojo negro.
         \r 1. Agregar numero al arbol.
         \r 2. Mostrar.
         \r 3. Buscar.
@@ -25,13 +27,13 @@ export default class RedBlackMenu {
                     await this.gestor.insert();
                     break;
                 case '2':
-                    // this.gestor.traverseTree();
+                    this.gestor.traverseTree();
                     break;
                 case '3':
                     await this.gestor.search();
                     break;
                 case '4':
-                    // await this.gestor.remove();
+                    await this.gestor.remove();
                     break;
                 case '0':
                     return;

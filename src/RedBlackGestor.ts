@@ -7,37 +7,36 @@ export default class RedBlackGestor {
 
     private tree: RedBlackTree;
 
-    //     public traverseTree():void{
-    //         this.tree.traverse();
-    //     }
+    public traverseTree(): void {
+        this.tree.prettyPrint();
+    }
 
     public async insert(): Promise<any> {
         if (this.tree == null) {
             this.tree = new RedBlackTree();
         }
 
-        let key = await promptly.prompt('Ingresar la llave: ');
         let num = await promptly.prompt('Ingresar numero: ');
-        this.tree.insert(key, num);
+        this.tree.insert(num);
     }
 
-        public async search(): Promise<any> {
-            if (this.tree == null)
-                return console.log('Debe crear un arbol primero.');
+    public async search(): Promise<any> {
+        if (this.tree == null)
+            return console.log('Debe crear un arbol primero.');
 
-            let key = await promptly.prompt('Ingresar key: ');
-            let arr = this.tree.getNode(key);
-            if ( arr != null)
-                console.log('Numero encontrado.');
-            else
-                console.log('Numero no encontrado.');
-        }
+        let key = await promptly.prompt('Ingresar key: ');
+        let arr = this.tree.searchTree(key);
+        if (arr != null)
+            console.log('Numero encontrado.');
+        else
+            console.log('Numero no encontrado.');
+    }
 
-    //     public async remove(): Promise<any> {
-    //         if (this.tree == null)
-    //             return console.log('Debe crear un arbol primero.');
+    public async remove(): Promise<any> {
+        if (this.tree == null)
+            return console.log('Debe crear un arbol primero.');
 
-    //         let numero = await promptly.prompt('Ingresar numero: ');
-    //         let arr = this.tree.remove(Number(numero));
-    //     }
+        let key = await promptly.prompt('Ingresar el key: ');
+        let arr = this.tree.deleteNode(key);
+    }
 }
