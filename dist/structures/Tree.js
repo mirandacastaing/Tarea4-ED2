@@ -6,17 +6,17 @@ class Tree {
         this.root = null;
     }
     insertRecursive(nodo, num) {
-        if (num < nodo.num) {
-            if (nodo.leftNodo != null)
-                this.insertRecursive(nodo.leftNodo, num);
+        if (num < nodo.getNum()) {
+            if (nodo.getLeftNodo() != null)
+                this.insertRecursive(nodo.getLeftNodo(), num);
             else
-                nodo.leftNodo = new Nodo_1.default(num);
+                nodo.setLeftNodo(new Nodo_1.default(num));
         }
-        else if (num > nodo.num) {
-            if (nodo.rightNodo != null)
-                this.insertRecursive(nodo.rightNodo, num);
+        else if (num > nodo.getNum()) {
+            if (nodo.getRightNodo() != null)
+                this.insertRecursive(nodo.getRightNodo(), num);
             else
-                nodo.rightNodo = new Nodo_1.default(num);
+                nodo.setRightNodo(new Nodo_1.default(num));
         }
     }
     insert(num) {
@@ -25,25 +25,37 @@ class Tree {
         else
             this.insertRecursive(this.root, num);
     }
+    searhRecursive(nodo, num) {
+        if (nodo == null || nodo.getNum())
+            return nodo;
+        if (nodo.getNum() < num)
+            return this.searhRecursive(nodo.getRightNodo(), num);
+        if (nodo.getNum() > num)
+            return this.searhRecursive(nodo.getLeftNodo(), num);
+    }
+    search(num) {
+        let nodo = this.searhRecursive(this.root, num);
+        return nodo.getNum();
+    }
     showPreOrderRec(nodo) {
         if (nodo != null) {
-            process.stdout.write(String(nodo.num) + ',');
-            this.showPreOrderRec(nodo.leftNodo);
-            this.showPreOrderRec(nodo.rightNodo);
+            process.stdout.write(String(nodo.getNum()) + ',');
+            this.showPreOrderRec(nodo.getLeftNodo());
+            this.showPreOrderRec(nodo.getRightNodo());
         }
     }
     showInOrderRec(nodo) {
         if (nodo != null) {
-            this.showInOrderRec(nodo.leftNodo);
-            process.stdout.write(String(nodo.num) + ',');
-            this.showInOrderRec(nodo.rightNodo);
+            this.showInOrderRec(nodo.getLeftNodo());
+            process.stdout.write(String(nodo.getNum()) + ',');
+            this.showInOrderRec(nodo.getRightNodo());
         }
     }
     showPostOrderRec(nodo) {
         if (nodo != null) {
-            this.showPostOrderRec(nodo.leftNodo);
-            this.showPostOrderRec(nodo.rightNodo);
-            process.stdout.write(String(nodo.num) + ',');
+            this.showPostOrderRec(nodo.getLeftNodo());
+            this.showPostOrderRec(nodo.getRightNodo());
+            process.stdout.write(String(nodo.getNum()) + ',');
         }
     }
     showInOrder() {

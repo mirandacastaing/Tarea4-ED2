@@ -9,6 +9,24 @@ class Nodo {
         this.bf = 0;
         this.num = num;
     }
+    setNum(num) {
+        this.num = num;
+    }
+    getNum() {
+        return this.num;
+    }
+    setRightNodo(nodo) {
+        this.rightNodo = nodo;
+    }
+    setLeftNodo(nodo) {
+        this.leftNodo = nodo;
+    }
+    getRightNodo() {
+        return this.rightNodo;
+    }
+    getLeftNodo() {
+        return this.leftNodo;
+    }
     getBF() {
         return this.bf;
     }

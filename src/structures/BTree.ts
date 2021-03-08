@@ -13,9 +13,19 @@ export default class BTree {
             this.root.traverse();
     }
 
-    public search(key:number):void{
-        if(this.root != null)
-            this.root.search(key);
+    public search(key:number):number{
+        if(this.root != null){
+            let nodo = this.root.search(key);
+            if(nodo!=null){
+                let i =  nodo.findKey(key);
+                //console.log('i: '+i+ ', nodo[] '+nodo.keys[i]);
+                return nodo.keys[i];
+            }
+        }
+        else{
+            console.log('Numero no encontrado (private).');
+            return null;
+        }
     }
 
     public insert(key:number):void{
@@ -51,6 +61,21 @@ export default class BTree {
             }
         }
 
+    }
+
+    public remove(key:number):void{
+        if(this.root==null)
+            return console.log('Arbol esta vacio.');
+        
+        this.root.remove(key);
+
+        if(this.root.currKeys == 0){
+            let tmp:BNode = this.root;
+            if(this.root.isLeaf)
+                this.root = null;
+            else
+                this.root = this.root.childs[0];
+        }
     }
 
 

@@ -9,36 +9,30 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const BTreeGestor_1 = require("./BTreeGestor");
+const structures_1 = require("./structures/");
 const promptly = require("promptly");
-class BTreeMenu {
-    constructor() {
-        this.gestor = new BTreeGestor_1.default();
-    }
+class TreeGestor {
+    constructor() { }
     menu() {
         return __awaiter(this, void 0, void 0, function* () {
             let menu = `
         \r 1. Agregar numero al arbol.
         \r 2. Mostrar.
         \r 3. Buscar.
-        \r 4. Remover.
         \r 0. Salir.`;
             let opcion;
             do {
                 console.log(menu);
-                opcion = yield promptly.choose('Escoger opcion de menu: ', ['1', '2', '3', '4', '0']);
+                opcion = yield promptly.choose('Escoger opcion de menu: ', ['1', '2', '3', '0']);
                 switch (opcion) {
                     case '1':
-                        yield this.gestor.insert();
+                        yield this.insert();
                         break;
                     case '2':
-                        this.gestor.traverseTree();
+                        this.tree.traverse();
                         break;
                     case '3':
-                        yield this.gestor.search();
-                        break;
-                    case '4':
-                        yield this.gestor.remove();
+                        yield this.search();
                         break;
                     case '0':
                         return;
@@ -50,5 +44,24 @@ class BTreeMenu {
             return 1;
         });
     }
+    insert() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.tree == null) {
+                let degree = yield promptly.prompt('Ingresar grado/orden de arbol: ');
+                this.tree = new structures_1.BTree(Number(degree));
+            }
+            let numero = yield promptly.prompt('Ingresar numero: ');
+            this.tree.insert(Number(numero));
+        });
+    }
+    search() {
+        return __awaiter(this, void 0, void 0, function* () {
+            let numero = yield promptly.prompt('Ingresar numero: ');
+            if (this.tree.search(Number(numero)) != null)
+                console.log('Numero encontrado.');
+            else
+                console.log('Numero no encontrado.');
+        });
+    }
 }
-exports.default = BTreeMenu;
+exports.default = TreeGestor;

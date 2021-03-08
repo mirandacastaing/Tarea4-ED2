@@ -1,15 +1,24 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Tree = exports.Nodo = exports.BTree = exports.BRTree = exports.BNode = exports.AVLTree = void 0;
+exports.Tree = exports.Nodo = exports.BTree = exports.BNode = exports.AVLTree = void 0;
 var AVLTree_1 = require("./AVLTree");
 Object.defineProperty(exports, "AVLTree", { enumerable: true, get: function () { return AVLTree_1.default; } });
 var BNode_1 = require("./BNode");
 Object.defineProperty(exports, "BNode", { enumerable: true, get: function () { return BNode_1.default; } });
-var BRTree_1 = require("./BRTree");
-Object.defineProperty(exports, "BRTree", { enumerable: true, get: function () { return BRTree_1.default; } });
 var BTree_1 = require("./BTree");
 Object.defineProperty(exports, "BTree", { enumerable: true, get: function () { return BTree_1.default; } });
 var Nodo_1 = require("./Nodo");
 Object.defineProperty(exports, "Nodo", { enumerable: true, get: function () { return Nodo_1.default; } });
 var Tree_1 = require("./Tree");
 Object.defineProperty(exports, "Tree", { enumerable: true, get: function () { return Tree_1.default; } });
+__exportStar(require("./RedBlackTree"), exports);

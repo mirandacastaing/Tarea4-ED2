@@ -9,11 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const structures_1 = require("./structures/");
 const promptly = require("promptly");
-class AVLTreeMenu {
+const AVLTreeGestor_1 = require("./AVLTreeGestor");
+class AVLgestorMenu {
     constructor() {
-        this.tree = new structures_1.AVLTree();
+        this.gestor = new AVLTreeGestor_1.default();
     }
     menu() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -22,24 +22,30 @@ class AVLTreeMenu {
         \r 2. Mostrar 'preorden'.
         \r 3. Mostrar 'inorden'.
         \r 4. Mostrar 'postorden'.
+        \r 5. Buscar.
         \r 0. Salir.`;
             let opcion;
             do {
                 console.log(menu);
-                opcion = yield promptly.choose('Escoger opcion de menu: ', ['1', '2', '3', '4', '0']);
+                opcion = yield promptly.choose('Escoger opcion de menu: ', ['1', '2', '3', '4', '5', '0']);
+                let input;
                 switch (opcion) {
                     case '1':
-                        let numero = yield promptly.prompt('Ingresar numero: ');
-                        this.tree.insert(Number(numero));
+                        input = yield promptly.prompt('Ingresar numero: ');
+                        this.gestor.insert(Number(input));
                         break;
                     case '2':
-                        this.tree.showPreOrder();
+                        this.gestor.showPreOrder();
                         break;
                     case '3':
-                        this.tree.showInOrder();
+                        this.gestor.showInOrder();
                         break;
                     case '4':
-                        this.tree.showPostOrder();
+                        this.gestor.showPostOrder();
+                        break;
+                    case '5':
+                        input = yield promptly.prompt('Ingresar numero: ');
+                        this.gestor.search(Number(input));
                         break;
                     case '0':
                         break;
@@ -50,4 +56,4 @@ class AVLTreeMenu {
         });
     }
 }
-exports.default = AVLTreeMenu;
+exports.default = AVLgestorMenu;
